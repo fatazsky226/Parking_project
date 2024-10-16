@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Accueil - Parking Connecté{% endblock %}</title>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+    <!-- Custom CSS -->
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f0f0;
+        }
+
+        .hero-section {
+            background-image: url('https://example.com/parking-image.jpg'); /* Remplacez par une image réelle */
+            background-size: cover;
+            background-position: center;
+            padding: 100px 0;
+            color: white;
+            text-align: center;
+        }
+
+        .hero-section h1 {
+            font-size: 3.5rem;
+            font-weight: bold;
+        }
+
+        .hero-section p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+        }
+
+        .btn-hero {
+            background-color: #28a745;
+            color: white;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            border-radius: 50px;
+        }
+
+        .features-section {
+            padding: 50px 0;
+            background-color: #fff;
+        }
+
+        .feature-box {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .feature-box img {
+            width: 80px;
+            margin-bottom: 20px;
+        }
+
+        .feature-box h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+
+        .feature-box p {
+            font-size: 1rem;
+            color: #777;
+        }
+
+        footer {
+            background-color: #343a40;
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+        }
+
+        footer p {
+            margin: 0;
+        }
+
+        footer a {
+            color: #ffd700;
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <a class="navbar-brand" href="{% url 'parking_list' %}">Parking Connecté</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'parking_list' %}">Parkings</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'login' %}">Connexion</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'signup' %}">S'inscrire</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Section Héro (bannière principale) -->
+    <section class="hero-section">
+        <div class="container">
+            <h1>Votre Parking Intelligent</h1>
+            <p>Gérez vos réservations de parking facilement avec une technologie connectée et en temps réel.</p>
+            <a href="{% url 'signup' %}" class="btn btn-hero">Commencez Maintenant</a>
+        </div>
+    </section>
+
+    <!-- Section des fonctionnalités -->
+    <section class="features-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 feature-box">
+                    <img src="https://example.com/icon-1.png" alt="Facilité de réservation">
+                    <h3>Facilité de réservation</h3>
+                    <p>Réservez votre place de parking en quelques clics, où que vous soyez.</p>
+                </div>
+                <div class="col-md-4 feature-box">
+                    <img src="https://example.com/icon-2.png" alt="Disponibilité en temps réel">
+                    <h3>Disponibilité en temps réel</h3>
+                    <p>Suivez en direct la disponibilité des places et choisissez celle qui vous convient.</p>
+                </div>
+                <div class="col-md-4 feature-box">
+                    <img src="https://example.com/icon-3.png" alt="Paiement sécurisé">
+                    <h3>Paiement sécurisé</h3>
+                    <p>Effectuez vos paiements directement en ligne, de manière sécurisée et rapide.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Parking Connecté. Tous droits réservés.</p>
+            <p>
+                <a href="#">Mentions légales</a> | 
+                <a href="#">Politique de confidentialité</a>
+            </p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
+

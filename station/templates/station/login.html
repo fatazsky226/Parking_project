@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h2 class="card-title text-center mb-4">Se connecter</h2>
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <!-- Champ pour le nom d'utilisateur -->
+                        <div class="form-group">
+                            <label for="id_username">Nom d'utilisateur</label>
+                            {{ form.username }}
+                        </div>
+
+                        <!-- Champ pour le mot de passe -->
+                        <div class="form-group">
+                            <label for="id_password">Mot de passe</label>
+                            {{ form.password }}
+                        </div>
+
+                        <!-- Bouton de connexion -->
+                        <button type="submit" class="btn btn-primary btn-block">Connexion</button>
+                    </form>
+
+                    <!-- Option de mot de passe oublié -->
+                    <div class="text-center mt-3">
+                        <a href="#">Mot de passe oublié ?</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lien pour la création de compte si l'utilisateur n'en a pas -->
+            <div class="text-center mt-3">
+                <p>Vous n'avez pas encore de compte ? <a href="{% url 'signup' %}">Inscrivez-vous ici</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

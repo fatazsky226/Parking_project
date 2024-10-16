@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    {% load static %}  <!-- Ajoute cette ligne -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">  <!-- Chemin vers ton fichier CSS -->
+    <title>Aucune place disponible</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Désolé</h1>
+        <p>Il n'y a pas de places de parking disponibles pour le moment.</p>
+        <a href="{% url 'home' %}">Retour à la page d'accueil</a>  <!-- Lien vers la page d'accueil -->
+    </div>
+</body>
+</html>
