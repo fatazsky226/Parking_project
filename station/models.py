@@ -4,16 +4,10 @@ from django.contrib.auth.models import User
 
 class ParkingLot(models.Model):
     name = models.CharField(max_length=255)
-    ail_park = models.CharField(
-        max_length=50,
-        choices=[('Est', 'Est'), ('Ouest', 'Ouest'), ('Nord', 'Nord'), ('Sud', 'Sud')],
-        default='Est'  # Définir une valeur par défaut
-    )
+    ail_park = models.CharField(max_length=50, choices=[('Est', 'Est'), ('Ouest', 'Ouest'), ('Nord', 'Nord'), ('Sud', 'Sud')], default='Est')
     location = models.CharField(max_length=255)
     capacity = models.IntegerField()
     available_spaces = models.IntegerField()
-
-
 
     def __str__(self):
         return self.name
@@ -45,6 +39,13 @@ class Reservation(models.Model):
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
     status = models.CharField(max_length=50, choices=[('active', 'Active'), ('completed', 'Completed'), ('cancelled', 'Cancelled')])
+    parking_lot = models.ForeignKey(ParkingLot, on_delete=models.CASCADE)
 
-    def __str__(self):
-        return f'Reservation {self.id} for {self.user.username}'
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        self.parking_lot.update_available_spaces()  # Met à jour les places disponibles après chaque réservation
+
+    @staticmethod
+    def get_default_parking_lot():
+        # Retourne un ParkingLot par défaut (ajustez selon vos besoins)
+        return ParkingLot.objects.first().id

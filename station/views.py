@@ -14,13 +14,22 @@ def reserve_parking(request, parking_id):
     parking_lot = get_object_or_404(ParkingLot, id=parking_id)
     available_space = parking_lot.spaces.filter(is_occupied=False).first()
 
-    if available_space:
-        # Créer une réservation
+    # Nouvelle validation des conflits de réservation
+    start_time = timezone.now()
+    end_time = start_time + timezone.timedelta(hours=1)
+    overlapping_reservations = Reservation.objects.filter(
+        parking_space=available_space,
+        start_time__lt=end_time,  # Réservation dont la fin est après le début demandé
+        end_time__gt=start_time    # Réservation dont le début est avant la fin demandée
+    )
+
+    if available_space and not overlapping_reservations.exists():
+        # Créer une réservation si aucun conflit
         reservation = Reservation.objects.create(
             user=request.user,
             parking_space=available_space,
-            start_time=timezone.now(),
-            end_time=timezone.now() + timezone.timedelta(hours=1),
+            start_time=start_time,
+            end_time=end_time,
             status='active'
         )
 
@@ -29,12 +38,14 @@ def reserve_parking(request, parking_id):
         available_space.save()
 
         # Réduire le nombre de places disponibles dans le parking
-        parking_lot.available_spaces -= 1  # On décrémente le nombre de places disponibles
+        parking_lot.available_spaces -= 1
         parking_lot.save()
 
         return redirect('reservation_list')
     
+    # Si aucune place disponible ou conflit de réservation
     return render(request, 'station/no_space_available.html')
+
 
 @login_required
 def reservation_list(request):
@@ -50,7 +61,7 @@ def register(request):
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('station/parking_list.html')  # Remplacez 'login' par l'URL de redirection souhaitée après l'inscription
+            return redirect('login')  # Redirige vers la page de connexion après inscription
     else:
         form = UserRegistrationForm()
     return render(request, 'station/register.html', {'form': form})
@@ -60,10 +71,11 @@ def signup(request):
         form = UserCreationForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('login')
+            return redirect('login')  # Redirige vers la page de connexion
     else:
         form = UserCreationForm()
     return render(request, 'station/signup.html', {'form': form})
+
 
 
 def home(request):
