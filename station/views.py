@@ -4,6 +4,13 @@ from .models import ParkingLot, ParkingSpace, Reservation
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from .forms import UserRegistrationForm, UserCreationForm
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from .models import UltrasonicSensorData
+from .serializers import UltrasonicSensorDataSerializer
+
+
 
 def parking_list(request):
     parkings = ParkingLot.objects.all()
@@ -80,3 +87,13 @@ def signup(request):
 
 def home(request):
     return render(request, 'station/home.html')
+
+
+
+class UltrasonicSensorDataView(APIView):
+    def post(self, request, *args, **kwargs):
+        serializer = UltrasonicSensorDataSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

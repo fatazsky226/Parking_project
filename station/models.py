@@ -8,6 +8,7 @@ class ParkingLot(models.Model):
     location = models.CharField(max_length=255)
     capacity = models.IntegerField()
     available_spaces = models.IntegerField()
+    moyenne_spaces = models.FloatField(default=0.0)  # Nouveau champ pour stocker la moyenne
 
     def __str__(self):
         return self.name
@@ -49,3 +50,12 @@ class Reservation(models.Model):
     def get_default_parking_lot():
         # Retourne un ParkingLot par défaut (ajustez selon vos besoins)
         return ParkingLot.objects.first().id
+    
+
+class UltrasonicSensorData(models.Model):
+    parking_lot = models.ForeignKey(ParkingLot, on_delete=models.CASCADE, related_name='ultrasonic_data')  # Lier au parking
+    distance = models.FloatField()  # Distance mesurée par le capteur
+    timestamp = models.DateTimeField(auto_now_add=True)  # Date de la mesure
+
+    def __str__(self):
+        return f'Distance: {self.distance} cm at {self.timestamp}'
