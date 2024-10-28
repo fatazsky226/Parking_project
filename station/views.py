@@ -6,6 +6,7 @@ from django.utils import timezone
 from .forms import UserRegistrationForm, UserCreationForm
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.decorators import api_view
 from rest_framework import status
 from .models import UltrasonicSensorData
 from .serializers import UltrasonicSensorDataSerializer
@@ -91,9 +92,19 @@ def home(request):
 
 
 class UltrasonicSensorDataView(APIView):
-    def post(self, request, *args, **kwargs):
+    def post(self, request):
         serializer = UltrasonicSensorDataSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            serializer.save()  # Enregistre les données dans la base
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+def allowed_methods(self):
+    """
+    Return the list of allowed HTTP methods, uppercased.
+    """
+    self.http_method_names.append("get")
+    return [method.upper() for method in self.http_method_names
+            if hasattr(self, method)]

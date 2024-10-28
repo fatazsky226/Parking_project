@@ -1,6 +1,7 @@
 # parking/models.py
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 class ParkingLot(models.Model):
     name = models.CharField(max_length=255)
@@ -55,7 +56,16 @@ class Reservation(models.Model):
 class UltrasonicSensorData(models.Model):
     parking_lot = models.ForeignKey(ParkingLot, on_delete=models.CASCADE, related_name='ultrasonic_data')  # Lier au parking
     distance = models.FloatField()  # Distance mesurée par le capteur
+    
     timestamp = models.DateTimeField(auto_now_add=True)  # Date de la mesure
 
     def __str__(self):
         return f'Distance: {self.distance} cm at {self.timestamp}'
+
+class AverageDistance(models.Model):
+    parking_lot = models.OneToOneField('ParkingLot', on_delete=models.CASCADE, related_name='average_distance')
+    average_distance = models.FloatField(default=0.0)  # Stocke la moyenne calculée
+    last_updated = models.DateTimeField(default=timezone.now)  # Horodatage de la dernière mise à jour
+
+    def __str__(self):
+        return f'Average distance for {self.parking_lot.name}: {self.average_distance} cm'
