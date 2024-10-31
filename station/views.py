@@ -10,6 +10,10 @@ from rest_framework.decorators import api_view
 from rest_framework import status
 from .models import UltrasonicSensorData
 from .serializers import UltrasonicSensorDataSerializer
+from rest_framework.permissions import IsAuthenticated, BasePermission
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from django.contrib.auth.mixins import UserPassesTestMixin
+from django.contrib.auth.models import User
 
 
 
@@ -89,13 +93,25 @@ def signup(request):
 def home(request):
     return render(request, 'station/home.html')
 
+class IsMicrocontroleur(BasePermission):
+   
+    def has_permission(self, request, view):
+        return request.user.is_authenticated and request.user.username == 'microcontroleur'
 
 
 class UltrasonicSensorDataView(APIView):
-    def post(self, request):
+
+    permission_classes = [IsMicrocontroleur]  # Utilisez la nouvelle permission
+
+    def get(self, request, *args, **kwargs):
+        data = UltrasonicSensorData.objects.all()
+        serializer = UltrasonicSensorDataSerializer(data, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request, *args, **kwargs):
         serializer = UltrasonicSensorDataSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()  # Enregistre les données dans la base
+            serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -108,3 +124,15 @@ def allowed_methods(self):
     self.http_method_names.append("get")
     return [method.upper() for method in self.http_method_names
             if hasattr(self, method)]
+
+
+class Home(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        content = {'message': 'Hello, World!'}
+        return Response(content)
+
+
+from rest_framework.permissions import BasePermission

@@ -31,6 +31,12 @@ class Profile(models.Model):
     last_name = models.CharField(max_length=100)
     email = models.EmailField(unique=True)
     contact_number = models.CharField(max_length=15, blank=True)
+    ROLE_CHOICES = [
+        ('Admin', 'Admin'),
+        ('Client', 'Client'),
+        ('Manager', 'Manager'),
+    ]
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='Client')
 
     def __str__(self):
         return self.user.username
