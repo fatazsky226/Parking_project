@@ -1,47 +1,70 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container mt-5">
-    <h2 class="text-center mb-4"> Parkings Disponible</h2>
-    
-    <div class="row mb-4">
-        {% for parking in parkings %}
-        <div class="col-lg-4 col-md-6 mb-4">
-            <div class="card shadow-sm border-light">
-                <div class="card-body text-center">
-                    <h5 class="card-title">{{ parking.name }}</h5>
-                    <p class="card-text">{{ parking.location }}</p>
-                    <p class="font-weight-bold">Capacity: {{ parking.capacity }}</p>
-                    <p class="text-success">Available: {{ parking.available_spaces }}</p>
-                    <a href="{% url 'reserve_parking' parking.id %}" class="btn btn-primary">Reserve <i class="bi bi-check-circle"></i></a>
-                </div>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
+<div class="container mt-4">
+    <h1 class="text-center">Liste des Parkings</h1>
 
-    <h3 class="text-center mt-5">Parking Disponibilité </h3>
-    <canvas id="parkingChart" width="400" height="200" class="mt-4"></canvas>
+    {% if parkings %}
+        <div class="row">
+            {% for parking in parkings %}
+                <div class="col-md-4 mb-4">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ parking.name }}</h5>
+                            <p class="card-text">
+                                <strong>Emplacement :</strong> {{ parking.location }}<br>
+                                <strong>Capacité :</strong> {{ parking.capacity }}<br>
+                                <strong>Places disponibles :</strong> {{ parking.available_spaces }}
+                            </p>
+                            <a href="{% url 'station:parking_detail' parking.id %}" class="btn btn-primary">
+                                Voir Détails
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-center">Aucun parking disponible pour le moment.</p>
+    {% endif %}
 </div>
 
-<!-- Importer Bootstrap Icons -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
+<!-- Section du graphique -->
+<div class="container mt-5">
+    <h2 class="text-center">Statistiques des Parkings</h2>
+    <canvas id="parkingChart" width="400" height="200"></canvas>
+</div>
 
-<!-- Importer Chart.js -->
+<!-- Inclusion de Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+    // Données dynamiques extraites de la vue
+    const parkingNames = {{ parking_names|safe }};
+    const parkingCapacities = {{ parking_capacities|safe }};
+    const parkingAvailableSpaces = {{ parking_available_spaces|safe }};
+
+    // Configuration du graphique
     const ctx = document.getElementById('parkingChart').getContext('2d');
     const parkingChart = new Chart(ctx, {
-        type: 'bar',
+        type: 'bar', // Type de graphique
         data: {
-            labels: [{% for parking in parkings %}'{{ parking.name }}',{% endfor %} ''], // Labels des parkings
-            datasets: [{
-                label: 'Available Spaces',
-                data: [{% for parking in parkings %}{{ parking.available_spaces }},{% endfor %} 0], // Données des espaces disponibles
-                backgroundColor: 'rgba(75, 192, 192, 0.7)',
-                borderColor: 'rgba(75, 192, 192, 1)',
-                borderWidth: 1
-            }]
+            labels: parkingNames, // Les noms des parkings
+            datasets: [
+                {
+                    label: 'Capacité Totale',
+                    data: parkingCapacities, // Capacités totales
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'Places Disponibles',
+                    data: parkingAvailableSpaces, // Places disponibles
+                    backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }
+            ]
         },
         options: {
             responsive: true,
@@ -49,18 +72,13 @@
                 legend: {
                     position: 'top',
                 },
-                title: {
-                    display: true,
-                    text: 'Parking Availability'
+                tooltip: {
+                    enabled: true,
                 }
             },
             scales: {
                 y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Number of Available Spaces'
-                    }
+                    beginAtZero: true
                 }
             }
         }

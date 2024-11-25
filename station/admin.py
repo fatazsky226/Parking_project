@@ -5,7 +5,7 @@ from .models import ParkingLot, ParkingSpace, Reservation, Profile
 
 @admin.register(ParkingLot)
 class ParkingLotAdmin(admin.ModelAdmin):
-    list_display = ('name', 'location', 'capacity', 'available_spaces', 'ail_park')  # Affiche ces champs dans l'admin
+    list_display = ['id', 'name', 'total_spaces', 'location', 'available_spaces']  # Exemple  # Affiche ces champs dans l'admin
     search_fields = ('name', 'location')  # Permet de rechercher par nom ou emplacement
 
 @admin.register(ParkingSpace)
