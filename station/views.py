@@ -3,10 +3,11 @@ from django.shortcuts import render, get_object_or_404, redirect
 from .models import ParkingLot, ParkingSpace, Reservation
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
-
+from django.contrib import messages
 from django.contrib.auth import login, authenticate
-from .forms import SignUpForm
-#from .forms import UserRegistrationForm, UserCreationForm
+from .forms import UserRegistrationForm
+#from .forms import SignUpForm
+from .forms import UserRegistrationForm, UserCreationForm
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
@@ -20,68 +21,11 @@ from django.contrib.auth.models import User
 from django.http import JsonResponse
 
 
-'''
-def parking_list(request):
-    # Récupération des parkings depuis la base de données
-    parkings = ParkingLot.objects.all()
-
-    # Extraction des données nécessaires pour le graphique
-    parking_names = [parking.name for parking in parkings]
-    parking_capacities = [parking.total_spaces for parking in parkings]
-    parking_available_spaces = [parking.available_spaces for parking in parkings]
-
-    context = {
-        'parkings': parkings,
-        'parking_names': parking_names,
-        'parking_capacities': parking_capacities,
-        'parking_available_spaces': parking_available_spaces,
-    }
-    return render(request, 'station/parking_list.html', context)
-'''
 def parking_list(request):
     #parkings = ParkingLot.objects.all()
     parkings = UltrasonicSensorData.objects.all()
     uid = UltrasonicSensorData.objects.last()
-    return render(request, 'station/parking_list.html', {'parkings': parkings, 'uids': uid})
-
-'''
-@login_required
-def reserve_parking(request, parking_id):
-    parking_lot = get_object_or_404(ParkingLot, id=parking_id)
-    available_space = parking_lot.spaces.filter(is_occupied=False).first()
-
-    # Nouvelle validation des conflits de réservation
-    start_time = timezone.now()
-    end_time = start_time + timezone.timedelta(hours=1)
-    overlapping_reservations = Reservation.objects.filter(
-        parking_space=available_space,
-        start_time__lt=end_time,  # Réservation dont la fin est après le début demandé
-        end_time__gt=start_time    # Réservation dont le début est avant la fin demandée
-    )
-
-    if available_space and not overlapping_reservations.exists():
-        # Créer une réservation si aucun conflit
-        reservation = Reservation.objects.create(
-            user=request.user,
-            parking_space=available_space,
-            start_time=start_time,
-            end_time=end_time,
-            status='active'
-        )
-
-        # Marquer l'espace comme occupé
-        available_space.is_occupied = True
-        available_space.save()
-
-        # Réduire le nombre de places disponibles dans le parking
-        parking_lot.available_spaces -= 1
-        parking_lot.save()
-
-        return redirect('reservation_list')
-    
-    # Si aucune place disponible ou conflit de réservation
-    return render(request, 'station/no_space_available.html')
-'''
+    return render(request, 'station/parking_list2.html', {'parkings': parkings, 'uids': uid})
 
 #Ajout fait pour les dernière modifications à revoir
 @login_required
@@ -114,13 +58,12 @@ def reserve_parking(request, parking_id):
     
     return render(request, 'station/reserve_parking.html', {'parking_lot': parking_lot, 'available_spaces': available_spaces.count()})
 
+
 #ajout de vue fait pour visualiser en temps réel
 def parking_status(request, parking_id):
     parking_lot = get_object_or_404(ParkingLot, id=parking_id)
     available_spaces = parking_lot.spaces.filter(is_occupied=False).count()
     return JsonResponse({'available_spaces': available_spaces})
-
-
 
 def get_last_sensor_data(request):
     last_sensor_data = UltrasonicSensorData.objects.last()
@@ -135,6 +78,7 @@ def get_last_sensor_data(request):
     else:
         return JsonResponse({'error': 'No data available'}, status=404)
 
+
 @login_required
 def reservation_list(request):
     reservations = Reservation.objects.filter(user=request.user)
@@ -143,53 +87,29 @@ def reservation_list(request):
 def home_view(request):
     return render(request, 'station/home.html')
 
-'''
-def register(request):
-    if request.method == 'POST':
-        form = UserRegistrationForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('login')  # Redirige vers la page de connexion après inscription
-    else:
-        form = UserRegistrationForm()
-    return render(request, 'station/register.html', {'form': form})
-
-
-
-def signup(request):
-    if request.method == 'POST':
-        form = SignUpForm(request.POST)
-        if form.is_valid():
-            form.save()  # Crée un nouvel utilisateur
-            username = form.cleaned_data.get('username')
-            raw_password = form.cleaned_data.get('password1')
-            user = authenticate(username=username, password=raw_password)
-            login(request, user)  # Connecte l'utilisateur
-            return redirect('home')  # Redirige vers la page d'accueil
-    else:
-        form = SignUpForm()
+def signup(request):  
+    if request.method == 'POST':  
+        form = UserRegistrationForm(request.POST)  
+        if form.is_valid():  
+            try:  
+                user = form.save()  
+                # Connecter l'utilisateur automatiquement après l'inscription  
+                login(request, user)  
+                messages.success(request, 'Votre compte a été créé avec succès!')  
+                return redirect('home')  # Assurez-vous que 'home' est bien défini dans vos URLs  
+            except Exception as e:  
+                print(f"Erreur lors de la création de l'utilisateur: {e}")  # Pour le débogage  
+                messages.error(request, 'Une erreur est survenue lors de la création du compte.')  
+        else:  
+            # Afficher les erreurs de validation du formulaire  
+            for field, errors in form.errors.items():  
+                for error in errors:  
+                    messages.error(request, f"{field}: {error}")  
+    else:  
+        form = UserRegistrationForm()  
+    
     return render(request, 'station/signup.html', {'form': form})
 
-'''
-# Vue pour l'inscription des utilisateurs
-def signup_view(request):
-    if request.method == 'POST':
-        form = SignUpForm(request.POST)
-        if form.is_valid():
-            form.save()  # Crée un nouvel utilisateur
-            username = form.cleaned_data.get('username')
-            raw_password = form.cleaned_data.get('password1')
-            user = authenticate(username=username, password=raw_password)
-            login(request, user)  # Connecte l'utilisateur
-            return redirect('home')  # Redirige vers la page d'accueil
-    else:
-        form = SignUpForm()
-    return render(request, 'station/signup.html', {'form': form})
-
-'''
-def home(request):
-    return render(request, 'station/home.html')
-'''
 
 def home(request):
      # Vérifiez si l'utilisateur est authentifié

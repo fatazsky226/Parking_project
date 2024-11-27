@@ -69,10 +69,12 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'parking_project.urls'
 
-TEMPLATES = [
-    {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+TEMPLATES = [  
+    {  
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',  
+        'DIRS': [  
+            BASE_DIR / 'station' / 'templates',  # Pour les templates de l'application  
+        ],  
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

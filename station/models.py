@@ -30,21 +30,16 @@ class ParkingSpace(models.Model):
     def __str__(self):
         return f'Space {self.id} in {self.parking_lot.name}'
     
-class Profile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, default=1)
-    first_name = models.CharField(max_length=100)
-    last_name = models.CharField(max_length=100)
-    email = models.EmailField(unique=True)
-    contact_number = models.CharField(max_length=15, blank=True)
-    ROLE_CHOICES = [
-        ('Admin', 'Admin'),
-        ('Client', 'Client'),
-        ('Manager', 'Manager'),
-    ]
-    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='Client')
+class Profile(models.Model):  
+    user = models.OneToOneField(User, on_delete=models.CASCADE)  
+    first_name = models.CharField(max_length=30)  
+    last_name = models.CharField(max_length=30)  
+    email = models.EmailField()  
+    contact_number = models.CharField(max_length=15)  
 
-    def __str__(self):
+    def _str_(self):  
         return self.user.username
+
 
 class Reservation(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

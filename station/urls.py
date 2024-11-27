@@ -2,7 +2,7 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
 from . import views
-from .views import home_view, signup_view, UltrasonicSensorDataView, ParkingLotStatusView, parking_list
+from .views import home_view, signup, UltrasonicSensorDataView, ParkingLotStatusView, parking_list
 
 
 urlpatterns = [
@@ -19,7 +19,7 @@ urlpatterns = [
     #path('logout/', home_view, name='logout'),
     #path('signup/', views.signup, name='signup'),
 
-    path('signup/', views.signup_view, name='signup'),  # URL d'inscription
+    path('signup/', views.signup, name='signup'),  # URL d'inscription
     path('login/', auth_views.LoginView.as_view(template_name='station/login.html', next_page='/station/parking/'), name='login'),  # URL de connexion
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),  # URL de déconnexion
     path('', views.home, name='home'),  # URL de la page d'accueil

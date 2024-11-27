@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Administrateur {{ user.username }}</h2>
+    
+    <div class="row mb-4">
+        <!-- Carte de Parking -->
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card shadow-lg border-light rounded">
+                <div class="card-body text-center">
+                    <h5 class="card-title" id="parking-lot-name">Parking Lot: </h5>
+                    <p class="card-text">N° Parking: {{ uids.id }}</p>
+                    <p class="font-weight-bold text-primary">Nombre de places : {{ uids.parking_lot.capacity }}</p>
+                    <p class="card-text" id="parking-status-text">Status: </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h3 class="text-center mt-5">Parking Disponibilité</h3>
+    <div class="text-center mt-3 mb-4">
+        <canvas id="parkingChart" width="400" height="200"></canvas>
+    </div>
+</div>
+
+<!-- Importer Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
+
+<!-- Script pour la récupération des données -->
+<script>
+    // Fonction pour récupérer le dernier statut
+    function fetchLatestStatus() {
+        fetch("{% url 'get_last_sensor_data' %}")  // Assurez-vous que l'URL correspond à celle définie dans vos urls.py
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    console.log(data.error);
+                } else {
+                    // Mise à jour des éléments avec les données
+                    document.getElementById('parking-lot-name').innerText = 'Parking Lot: ' + data.parking_lot;
+                    document.getElementById('parking-status-text').innerText = 'Status: ' + data.status;
+                }
+            })
+            .catch(error => console.log('Error fetching data:', error));
+    }
+
+    // Appeler la fonction toutes les 5 secondes pour mettre à jour le status
+    setInterval(fetchLatestStatus, 5000);  // Intervalle en millisecondes (5000 ms = 5 secondes)
+</script>
+
+{% endblock %}

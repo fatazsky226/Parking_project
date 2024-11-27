@@ -1,53 +1,43 @@
-{% extends 'base.html' %}
+{% extends 'base.html' %}  
 
-{% block content %}
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h2 class="card-title text-center mb-4">Créer un compte</h2>
-                    <form method="post">
-                        {% csrf_token %}
-                        
-                        <!-- Champ Username -->
-                        <div class="form-group">
-                            <label for="id_username">Nom d'utilisateur</label>
-                            {{ form.username }}
-                            <small class="form-text text-muted">
-                                Requis. 150 caractères ou moins. Lettres, chiffres et @/./+/-/_ uniquement.
-                            </small>
-                        </div>
-
-                        <!-- Champ Password -->
-                        <div class="form-group">
-                            <label for="id_password1">Mot de passe</label>
-                            {{ form.password1 }}
-                            <small class="form-text text-muted">
-                                Votre mot de passe doit contenir au moins 8 caractères, ne pas être trop similaire à vos informations personnelles, ne pas être commun et ne pas être entièrement numérique.
-                            </small>
-                        </div>
-
-                        <!-- Confirmation Password -->
-                        <div class="form-group">
-                            <label for="id_password2">Confirmer le mot de passe</label>
-                            {{ form.password2 }}
-                            <small class="form-text text-muted">
-                                Veuillez entrer à nouveau le même mot de passe pour vérification.
-                            </small>
-                        </div>
-
-                        <!-- Bouton de soumission -->
-                        <button type="submit" class="btn btn-primary btn-block">S'inscrire</button>
-                    </form>
-                </div>
-            </div>
-
-            <!-- Lien pour les utilisateurs ayant déjà un compte -->
-            <div class="text-center mt-3">
-                <p>Vous avez déjà un compte ? <a href="{% url 'login' %}">Connectez-vous ici</a></p>
-            </div>
-        </div>
-    </div>
-</div>
+{% block content %}  
+<div class="container mt-5">  
+    <div class="row justify-content-center">  
+        <div class="col-md-6">  
+            <div class="card">  
+                <div class="card-header">  
+                    <h2 class="text-center">Inscription</h2>  
+                </div>  
+                <div class="card-body">  
+                    {% if messages %}  
+                        {% for message in messages %}  
+                            <div class="alert alert-{% if message.tags %}{{ message.tags }}{% endif %}">  
+                                {{ message }}  
+                            </div>  
+                        {% endfor %}  
+                    {% endif %}  
+                    
+                    <form method="post">  
+                        {% csrf_token %}  
+                        {% for field in form %}  
+                            <div class="form-group">  
+                                {{ field.label_tag }}  
+                                {{ field }}  
+                                {% if field.help_text %}  
+                                    <small class="form-text text-muted">{{ field.help_text }}</small>  
+                                {% endif %}  
+                                {% if field.errors %}  
+                                    {% for error in field.errors %}  
+                                        <div class="alert alert-danger">{{ error }}</div>  
+                                    {% endfor %}  
+                                {% endif %}  
+                            </div>  
+                        {% endfor %}  
+                        <button type="submit" class="btn btn-primary btn-block mt-4">S'inscrire</button>  
+                    </form>  
+                </div>  
+            </div>  
+        </div>  
+    </div>  
+</div>  
 {% endblock %}
