@@ -94,19 +94,24 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ml-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'parking_list' %}">Parkings</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'login' %}">Connexion</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'signup' %}">S'inscrire</a>
-                    </li>
+                <ul>
+                    {% if user.is_authenticated %}
+                        <!-- Formulaire pour la déconnexion -->
+                        <li>
+                            <form method="post" action="{% url 'logout' %}">
+                                {% csrf_token %}
+                                <button type="submit">Déconnexion</button>
+                            </form>
+                        </li>
+                    {% else %}
+                        <!-- Si l'utilisateur n'est pas connecté, afficher les liens d'inscription et de connexion -->
+                        <li><a href="{% url 'signup' %}">Inscription</a></li>
+                        <li><a href="{% url 'login' %}">Connexion</a></li>
+                    {% endif %}
                 </ul>
             </div>
         </nav>
+
     </header>
 
     <!-- Section Héro (bannière principale) -->

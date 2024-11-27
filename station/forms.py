@@ -4,6 +4,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from .models import Profile
 
+'''
 class UserRegistrationForm(UserCreationForm):
     first_name = forms.CharField(max_length=100, required=True, help_text='Votre prénom')
     last_name = forms.CharField(max_length=100, required=True, help_text='Votre nom de famille')
@@ -28,3 +29,12 @@ class UserRegistrationForm(UserCreationForm):
             )
             profile.save()
         return user
+
+'''
+ 
+class SignUpForm(UserCreationForm):
+    email = forms.EmailField(max_length=254, help_text='Requis. Entrez une adresse email valide.')
+
+    class Meta:
+        model = User
+        fields = ('username', 'email', 'password1', 'password2')

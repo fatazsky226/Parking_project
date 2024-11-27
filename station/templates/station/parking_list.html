@@ -16,7 +16,7 @@
                                 <strong>Capacité :</strong> {{ parking.capacity }}<br>
                                 <strong>Places disponibles :</strong> {{ parking.available_spaces }}
                             </p>
-                            <a href="{% url 'station:parking_detail' parking.id %}" class="btn btn-primary">
+                            <a href="{% url 'parking_list' %}" class="btn btn-primary">
                                 Voir Détails
                             </a>
                         </div>

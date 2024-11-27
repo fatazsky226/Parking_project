@@ -3,7 +3,10 @@ from django.shortcuts import render, get_object_or_404, redirect
 from .models import ParkingLot, ParkingSpace, Reservation
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
-from .forms import UserRegistrationForm, UserCreationForm
+
+from django.contrib.auth import login, authenticate
+from .forms import SignUpForm
+#from .forms import UserRegistrationForm, UserCreationForm
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
@@ -17,7 +20,7 @@ from django.contrib.auth.models import User
 from django.http import JsonResponse
 
 
-
+'''
 def parking_list(request):
     # Récupération des parkings depuis la base de données
     parkings = ParkingLot.objects.all()
@@ -34,12 +37,13 @@ def parking_list(request):
         'parking_available_spaces': parking_available_spaces,
     }
     return render(request, 'station/parking_list.html', context)
-
-'''def parking_list(request):
+'''
+def parking_list(request):
     #parkings = ParkingLot.objects.all()
     parkings = UltrasonicSensorData.objects.all()
     uid = UltrasonicSensorData.objects.last()
-    return render(request, 'station/parking_list.html', {'parkings': parkings, 'uids': uid})'''
+    return render(request, 'station/parking_list.html', {'parkings': parkings, 'uids': uid})
+
 '''
 @login_required
 def reserve_parking(request, parking_id):
@@ -139,7 +143,7 @@ def reservation_list(request):
 def home_view(request):
     return render(request, 'station/home.html')
 
-
+'''
 def register(request):
     if request.method == 'POST':
         form = UserRegistrationForm(request.POST)
@@ -150,20 +154,53 @@ def register(request):
         form = UserRegistrationForm()
     return render(request, 'station/register.html', {'form': form})
 
+
+
 def signup(request):
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        form = SignUpForm(request.POST)
         if form.is_valid():
-            form.save()
-            return redirect('login')  # Redirige vers la page de connexion
+            form.save()  # Crée un nouvel utilisateur
+            username = form.cleaned_data.get('username')
+            raw_password = form.cleaned_data.get('password1')
+            user = authenticate(username=username, password=raw_password)
+            login(request, user)  # Connecte l'utilisateur
+            return redirect('home')  # Redirige vers la page d'accueil
     else:
-        form = UserCreationForm()
+        form = SignUpForm()
     return render(request, 'station/signup.html', {'form': form})
 
+'''
+# Vue pour l'inscription des utilisateurs
+def signup_view(request):
+    if request.method == 'POST':
+        form = SignUpForm(request.POST)
+        if form.is_valid():
+            form.save()  # Crée un nouvel utilisateur
+            username = form.cleaned_data.get('username')
+            raw_password = form.cleaned_data.get('password1')
+            user = authenticate(username=username, password=raw_password)
+            login(request, user)  # Connecte l'utilisateur
+            return redirect('home')  # Redirige vers la page d'accueil
+    else:
+        form = SignUpForm()
+    return render(request, 'station/signup.html', {'form': form})
 
-
+'''
 def home(request):
     return render(request, 'station/home.html')
+'''
+
+def home(request):
+     # Vérifiez si l'utilisateur est authentifié
+    if request.user.is_authenticated:
+        username = request.user.username  # Récupérez le nom d'utilisateur
+    else:
+        username = None  # Si l'utilisateur n'est pas connecté
+
+    # Passez le nom d'utilisateur au template
+    return render(request, 'station/home.html', {'username': username})
+
 
 class IsMicrocontroleur(BasePermission):
     def has_permission(self, request, view):
