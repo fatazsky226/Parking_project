@@ -11,7 +11,7 @@
                 <div class="card-body text-center">
                     <h5 class="card-title" id="parking-lot-name">Parking Lot: </h5>
                     <p class="card-text">N° Parking: {{ uids.id }}</p>
-                    <p class="font-weight-bold text-primary">Nombre de places : {{ uids.parking_lot.capacity }}</p>
+                    <p class="font-weight-bold text-primary">Nombre de places : {{ parking_lot.total_spaces }}</p>
                     <p class="card-text" id="parking-status-text">Status: </p>
                 </div>
             </div>
@@ -39,7 +39,7 @@
             labels: ['Occupé', 'Disponible'],
             datasets: [{
                 label: 'Statut du Parking',
-                data: [0, {{ uids.parking_lot.capacity }}], // Données initiales
+                data: [0, {{ uids.total_spaces }}], // Données initiales
                 backgroundColor: [
                     'rgba(255, 99, 132, 0.7)', // Rouge pour occupé
                     'rgba(75, 192, 192, 0.7)'  // Vert pour disponible
@@ -74,7 +74,7 @@
                     document.getElementById('parking-status-text').innerText = 'Status: ' + data.status;
 
                     // Mise à jour du graphique
-                    const totalCapacity = {{ uids.parking_lot.capacity }};
+                    const totalCapacity = {{ uids.total_spaces }};
                     const occupied = data.occupied_spaces;
                     const available = totalCapacity - occupied;
 

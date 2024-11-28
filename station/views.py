@@ -20,7 +20,18 @@ from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.http import JsonResponse
 
+from django.contrib.auth.decorators import permission_required, login_required  
+from django.core.exceptions import PermissionDenied  
+from django.contrib.auth.models import Group  
 
+
+@login_required  
+def make_reservation(request, parking_id):  
+    if not request.user.has_perm('station.can_reserve_spot'):  
+        raise PermissionDenied  
+
+@login_required  
+@permission_required('station.can_view_parking', raise_exception=True)
 def parking_list(request):
     #parkings = ParkingLot.objects.all()
     parkings = UltrasonicSensorData.objects.all()
@@ -87,12 +98,16 @@ def reservation_list(request):
 def home_view(request):
     return render(request, 'station/home.html')
 
+'''       
 def signup(request):  
     if request.method == 'POST':  
         form = UserRegistrationForm(request.POST)  
         if form.is_valid():  
             try:  
-                user = form.save()  
+                user = form.save() 
+                # Attribuer l'utilisateur au groupe "Clients" par défaut  
+                client_group = Group.objects.get(name='Clients')  
+                user.groups.add(client_group)   
                 # Connecter l'utilisateur automatiquement après l'inscription  
                 login(request, user)  
                 messages.success(request, 'Votre compte a été créé avec succès!')  
@@ -108,6 +123,34 @@ def signup(request):
     else:  
         form = UserRegistrationForm()  
     
+    return render(request, 'station/signup.html', {'form': form})
+
+''' 
+def signup(request):
+    if request.method == 'POST':
+        form = UserRegistrationForm(request.POST)
+        if form.is_valid():
+            try:
+                user = form.save()
+                # Vérifiez ou récupérez le groupe "Clients"
+                client_group, created = Group.objects.get_or_create(name='Clients')
+                user.groups.add(client_group)
+                
+                # Connecter l'utilisateur automatiquement après inscription
+                login(request, user)
+                messages.success(request, 'Votre compte a été créé avec succès!')
+                return redirect('home')  # Assurez-vous que 'home' est défini dans vos URL
+            except Exception as e:
+                print(f"Erreur lors de la création de l'utilisateur: {e}")  # Pour le débogage
+                messages.error(request, 'Une erreur est survenue lors de la création du compte.')
+        else:
+            # Afficher les erreurs de validation du formulaire
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{field}: {error}")
+    else:
+        form = UserRegistrationForm()
+
     return render(request, 'station/signup.html', {'form': form})
 
 

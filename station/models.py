@@ -2,6 +2,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
+from django.contrib.auth.models import AbstractUser
 
 class ParkingLot(models.Model):
     name = models.CharField(max_length=255)
@@ -22,6 +23,13 @@ class ParkingLot(models.Model):
         if data_points.exists():
             self.moyenne_spaces = sum(d.status == "Occupé" for d in data_points) / len(data_points)
         self.save()
+    
+    class Meta:  
+        permissions = [  
+            ("can_view_parking", "Peut voir le parking"),  
+            ("can_manage_parking", "Peut gérer le parking"),  
+            ("can_reserve_spot", "Peut réserver une place"),  
+        ] 
 
 class ParkingSpace(models.Model):
     parking_lot = models.ForeignKey(ParkingLot, on_delete=models.CASCADE, related_name='spaces')
@@ -30,19 +38,32 @@ class ParkingSpace(models.Model):
     def __str__(self):
         return f'Space {self.id} in {self.parking_lot.name}'
     
-class Profile(models.Model):  
-    user = models.OneToOneField(User, on_delete=models.CASCADE)  
-    first_name = models.CharField(max_length=30)  
-    last_name = models.CharField(max_length=30)  
-    email = models.EmailField()  
-    contact_number = models.CharField(max_length=15)  
+from django.conf import settings
+from django.db import models
 
-    def _str_(self):  
+class Profile(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    first_name = models.CharField(max_length=30)
+    last_name = models.CharField(max_length=30)
+    email = models.EmailField()
+    contact_number = models.CharField(max_length=15)
+
+    def __str__(self):
         return self.user.username
+    
+    
+class CustomUser(AbstractUser):
+    first_name = models.CharField(max_length=30)
+    last_name = models.CharField(max_length=30)
+    email = models.EmailField()
+    contact_number = models.CharField(max_length=15)
+
+    def __str__(self):
+        return self.username
 
 
 class Reservation(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     parking_space = models.ForeignKey(ParkingSpace, on_delete=models.CASCADE)
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
@@ -60,6 +81,12 @@ class Reservation(models.Model):
     def get_default_parking_lot():
         # Retourne un ParkingLot par défaut (ajustez selon vos besoins)
         return ParkingLot.objects.first().id
+    
+    class Meta:  
+        permissions = [  
+            ("can_view_all_reservations", "Peut voir toutes les réservations"),  
+            ("can_manage_reservations", "Peut gérer les réservations"),  
+        ]
     
 
 class UltrasonicSensorData(models.Model):
