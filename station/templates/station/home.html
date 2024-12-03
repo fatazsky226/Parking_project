@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Parking intelligent avec réservation en ligne, disponibilité en temps réel et paiements sécurisés.">
     <title>{% block title %}Accueil - Parking Connecté{% endblock %}</title>
 
     <!-- Bootstrap CSS -->
@@ -85,8 +86,9 @@
     
     {% block extra_css %}{% endblock %}
 </head>
-<body>
+<body id="top">
 
+    <!-- Header -->
     <header>
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
             <a class="navbar-brand" href="{% url 'parking_list' %}">Parking Connecté</a>
@@ -94,24 +96,21 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul>
+                <ul class="navbar-nav ml-auto">
                     {% if user.is_authenticated %}
-                        <!-- Formulaire pour la déconnexion -->
-                        <li>
-                            <form method="post" action="{% url 'logout' %}">
+                        <li class="nav-item">
+                            <form method="post" action="{% url 'logout' %}" class="form-inline">
                                 {% csrf_token %}
-                                <button type="submit">Déconnexion</button>
+                                <button type="submit" class="btn btn-danger btn-sm">Déconnexion</button>
                             </form>
                         </li>
                     {% else %}
-                        <!-- Si l'utilisateur n'est pas connecté, afficher les liens d'inscription et de connexion -->
-                        <li><a href="{% url 'signup' %}">Inscription</a></li>
-                        <li><a href="{% url 'login' %}">Connexion</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'signup' %}">Inscription</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Connexion</a></li>
                     {% endif %}
                 </ul>
             </div>
         </nav>
-
     </header>
 
     <!-- Section Héro (bannière principale) -->
@@ -119,7 +118,7 @@
         <div class="container">
             <h1>Votre Parking Intelligent</h1>
             <p>Gérez vos réservations de parking facilement avec une technologie connectée et en temps réel.</p>
-            <a href="{% url 'signup' %}" class="btn btn-hero">Commencez Maintenant</a>
+            <a href="{% url 'login' %}" class="btn btn-hero">Commencez Maintenant</a>
         </div>
     </section>
 
@@ -128,17 +127,17 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-4 feature-box">
-                    <img src="https://example.com/icon-1.png" alt="Facilité de réservation">
+                    <img src="https://example.com/icon-1.png" alt="Icône représentant une réservation facile">
                     <h3>Facilité de réservation</h3>
                     <p>Réservez votre place de parking en quelques clics, où que vous soyez.</p>
                 </div>
                 <div class="col-md-4 feature-box">
-                    <img src="https://example.com/icon-2.png" alt="Disponibilité en temps réel">
+                    <img src="https://example.com/icon-2.png" alt="Icône de disponibilité en temps réel">
                     <h3>Disponibilité en temps réel</h3>
                     <p>Suivez en direct la disponibilité des places et choisissez celle qui vous convient.</p>
                 </div>
                 <div class="col-md-4 feature-box">
-                    <img src="https://example.com/icon-3.png" alt="Paiement sécurisé">
+                    <img src="https://example.com/icon-3.png" alt="Icône de paiement sécurisé">
                     <h3>Paiement sécurisé</h3>
                     <p>Effectuez vos paiements directement en ligne, de manière sécurisée et rapide.</p>
                 </div>
@@ -151,6 +150,7 @@
         <div class="container">
             <p>&copy; 2024 Parking Connecté. Tous droits réservés.</p>
             <p>
+                <a href="#top">Retour en haut</a> | 
                 <a href="#">Mentions légales</a> | 
                 <a href="#">Politique de confidentialité</a>
             </p>
@@ -165,4 +165,3 @@
     {% block extra_js %}{% endblock %}
 </body>
 </html>
-

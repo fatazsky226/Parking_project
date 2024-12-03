@@ -19,24 +19,33 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.contrib.auth.models import User
 from django.http import JsonResponse
-
 from django.contrib.auth.decorators import permission_required, login_required  
 from django.core.exceptions import PermissionDenied  
 from django.contrib.auth.models import Group  
-
+from django.utils.dateformat import format
+import json
+from django.core.serializers.json import DjangoJSONEncoder
 
 @login_required  
 def make_reservation(request, parking_id):  
     if not request.user.has_perm('station.can_reserve_spot'):  
         raise PermissionDenied  
 
-@login_required  
-@permission_required('station.can_view_parking', raise_exception=True)
+
+@login_required
 def parking_list(request):
-    #parkings = ParkingLot.objects.all()
-    parkings = UltrasonicSensorData.objects.all()
-    uid = UltrasonicSensorData.objects.last()
-    return render(request, 'station/parking_list2.html', {'parkings': parkings, 'uids': uid})
+    if request.user.groups.filter(name="Clients").exists():  # Vérifie si l'utilisateur est dans le groupe "Clients"
+        parkings = ParkingLot.objects.all()  # Charge tous les parkings
+        return render(request, 'station/parking_list_clients.html', {'parkings': parkings})
+
+    elif request.user.has_perm('station.can_view_parking'):  # Vérifie si l'utilisateur a le droit "can_view_parking"
+        parkings = UltrasonicSensorData.objects.all()
+        uid = UltrasonicSensorData.objects.last()
+    return render(request, 'station/parking_list1.html', {'parkings': parkings, 'uids': uid})
+    
+    raise PermissionDenied  # Autres utilisateurs non autorisés
+
+
 
 #Ajout fait pour les dernière modifications à revoir
 @login_required
@@ -84,6 +93,7 @@ def get_last_sensor_data(request):
             'id': last_sensor_data.id,
             'status': last_sensor_data.status,
             'parking_lot': last_sensor_data.parking_lot.name,
+            'occupied_spaces': last_sensor_data.parking_lot.total_spaces - last_sensor_data.parking_lot.available_spaces
         }
         return JsonResponse(data)
     else:
@@ -92,40 +102,19 @@ def get_last_sensor_data(request):
 
 @login_required
 def reservation_list(request):
-    reservations = Reservation.objects.filter(user=request.user)
+    if request.user.is_superuser:
+        # Si l'utilisateur est un superutilisateur, il peut voir toutes les réservations
+        reservations = Reservation.objects.all()
+    else:
+        # Sinon, il ne voit que ses propres réservations
+        reservations = Reservation.objects.filter(user=request.user)
+    
     return render(request, 'station/reservation_list.html', {'reservations': reservations})
+
 
 def home_view(request):
     return render(request, 'station/home.html')
 
-'''       
-def signup(request):  
-    if request.method == 'POST':  
-        form = UserRegistrationForm(request.POST)  
-        if form.is_valid():  
-            try:  
-                user = form.save() 
-                # Attribuer l'utilisateur au groupe "Clients" par défaut  
-                client_group = Group.objects.get(name='Clients')  
-                user.groups.add(client_group)   
-                # Connecter l'utilisateur automatiquement après l'inscription  
-                login(request, user)  
-                messages.success(request, 'Votre compte a été créé avec succès!')  
-                return redirect('home')  # Assurez-vous que 'home' est bien défini dans vos URLs  
-            except Exception as e:  
-                print(f"Erreur lors de la création de l'utilisateur: {e}")  # Pour le débogage  
-                messages.error(request, 'Une erreur est survenue lors de la création du compte.')  
-        else:  
-            # Afficher les erreurs de validation du formulaire  
-            for field, errors in form.errors.items():  
-                for error in errors:  
-                    messages.error(request, f"{field}: {error}")  
-    else:  
-        form = UserRegistrationForm()  
-    
-    return render(request, 'station/signup.html', {'form': form})
-
-''' 
 def signup(request):
     if request.method == 'POST':
         form = UserRegistrationForm(request.POST)
@@ -212,6 +201,18 @@ class ParkingLotStatusView(APIView):
         parking_lots = ParkingLot.objects.all()
         serializer = ParkingLotSerializer(parking_lots, many=True)
         return Response(serializer.data)
+
+def graph_view(request):
+    data = UltrasonicSensorData.objects.filter(parking_lot_id=1).values('timestamp', 'status')
+    formatted_data = [
+        {
+            'timestamp': format(item['timestamp'], 'Y-m-d H:i:s'),  # Format lisible
+            'status': item['status']
+        }
+        for item in data
+    ]
+    serialized_data = json.dumps(formatted_data, cls=DjangoJSONEncoder)
+    return render(request, 'station/graph.html', {'data': serialized_data})
 
 
 from rest_framework.permissions import BasePermission

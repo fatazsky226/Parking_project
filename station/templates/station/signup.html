@@ -1,43 +1,73 @@
-{% extends 'base.html' %}  
+{% extends 'base.html' %}
 
-{% block content %}  
-<div class="container mt-5">  
-    <div class="row justify-content-center">  
-        <div class="col-md-6">  
-            <div class="card">  
-                <div class="card-header">  
-                    <h2 class="text-center">Inscription</h2>  
-                </div>  
-                <div class="card-body">  
-                    {% if messages %}  
-                        {% for message in messages %}  
-                            <div class="alert alert-{% if message.tags %}{{ message.tags }}{% endif %}">  
-                                {{ message }}  
-                            </div>  
-                        {% endfor %}  
-                    {% endif %}  
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg border-0 rounded-lg">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="text-center mb-0">Inscription</h2>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{% if message.tags %}{{ message.tags }}{% endif %}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
                     
-                    <form method="post">  
-                        {% csrf_token %}  
-                        {% for field in form %}  
-                            <div class="form-group">  
-                                {{ field.label_tag }}  
-                                {{ field }}  
-                                {% if field.help_text %}  
-                                    <small class="form-text text-muted">{{ field.help_text }}</small>  
-                                {% endif %}  
-                                {% if field.errors %}  
-                                    {% for error in field.errors %}  
-                                        <div class="alert alert-danger">{{ error }}</div>  
-                                    {% endfor %}  
-                                {% endif %}  
-                            </div>  
-                        {% endfor %}  
-                        <button type="submit" class="btn btn-primary btn-block mt-4">S'inscrire</button>  
-                    </form>  
-                </div>  
-            </div>  
-        </div>  
-    </div>  
-</div>  
+                    <form method="post">
+                        {% csrf_token %}
+                        {% for field in form %}
+                            <div class="form-group mb-3">
+                                <label class="form-label">{{ field.label_tag }}</label>
+                                {{ field }}
+                                {% if field.name == "password1" %}
+                                    <!-- Description des règles -->
+                                    <div class="password-rules text-muted" id="password-rules" style="display: none;">
+                                        Votre mot de passe doit contenir :
+                                        <ul>
+                                            <li>Au moins 8 caractères</li>
+                                            <li>Une lettre majuscule</li>
+                                            <li>Une lettre minuscule</li>
+                                            <li>Un chiffre</li>
+                                        </ul>
+                                    </div>
+                                {% endif %}
+                                {% if field.errors %}
+                                    {% for error in field.errors %}
+                                        <div class="text-danger mt-1">{{ error }}</div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                        <button type="submit" class="btn btn-primary btn-block mt-4">S'inscrire</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Script pour gérer l'affichage des règles -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Cible le champ de mot de passe et les règles
+        const passwordField = document.querySelector('#id_password1');
+        const passwordRules = document.querySelector('#password-rules');
+
+        if (passwordField && passwordRules) {
+            // Afficher les règles quand la souris est sur le champ
+            passwordField.addEventListener('mouseenter', () => {
+                passwordRules.style.display = 'block';
+            });
+
+            // Masquer les règles quand la souris quitte le champ
+            passwordField.addEventListener('mouseleave', () => {
+                passwordRules.style.display = 'none';
+            });
+        }
+    });
+</script>
 {% endblock %}

@@ -6,6 +6,7 @@
         <thead>
             <tr>
                 <th>Parking Lot</th>
+                <th>Username</th>
                 <th>Start Time</th>
                 <th>End Time</th>
                 <th>Status</th>
@@ -15,6 +16,7 @@
             {% for reservation in reservations %}
             <tr>
                 <td>{{ reservation.parking_space.parking_lot.name }}</td>
+                <td>{{ reservation.user}}</td>
                 <td>{{ reservation.start_time }}</td>
                 <td>{{ reservation.end_time }}</td>
                 <td>{{ reservation.status }}</td>

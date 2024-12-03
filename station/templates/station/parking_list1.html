@@ -11,14 +11,17 @@
                 <div class="card-body text-center">
                     <h5 class="card-title" id="parking-lot-name">Parking Lot: </h5>
                     <p class="card-text">N° Parking: {{ uids.id }}</p>
-                    <p class="font-weight-bold text-primary">Nombre de places : {{ uids.parking_lot.capacity }}</p>
+                    <p class="font-weight-bold text-primary">Nombre de places : {{ uids.parking_lot.total_spaces }}</p>
                     <p class="card-text" id="parking-status-text">Status: </p>
                 </div>
             </div>
         </div>
     </div>
-
     <h3 class="text-center mt-5">Parking Disponibilité</h3>
+    <!-- Bouton pour ouvrir le lien -->
+    <div class="text-center mb-3">
+        <a href="{% url 'graph' %}" class="btn btn-primary">Afficher les statistiques</a>
+    </div>
     <div class="text-center mt-3 mb-4">
         <canvas id="parkingChart" width="400" height="200"></canvas>
     </div>
@@ -46,7 +49,7 @@
     }
 
     // Appeler la fonction toutes les 5 secondes pour mettre à jour le status
-    setInterval(fetchLatestStatus, 5000);  // Intervalle en millisecondes (5000 ms = 5 secondes)
+    setInterval(fetchLatestStatus, 2000);  // Intervalle en millisecondes (5000 ms = 5 secondes)
 </script>
 
 {% endblock %}

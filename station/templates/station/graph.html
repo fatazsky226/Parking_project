@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Graphique Dynamique - Parking Connecté
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="card-title text-center mb-0">Taux d'occupation</h3>
+                </div>
+                <div class="card-body">
+                    <canvas id="sensorChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    let sensorChart;
+
+    function fetchDataAndUpdateChart() {
+        $.ajax({
+            url: "{% url 'graph' %}", // Utilise votre URL existante
+            method: "GET",
+            success: function(response) {
+                // Parsing des données depuis le HTML injecté par Django
+                const data = JSON.parse('{{ data|safe }}');
+
+                // Calcul des états à partir des données
+                const totalCount = data.length;
+                const occupiedCount = data.filter(item => item.status === "occupied").length;
+                const freeCount = totalCount - occupiedCount;
+
+                const occupiedPercentage = (occupiedCount / totalCount) * 100;
+                const freePercentage = (freeCount / totalCount) * 100;
+
+                // Mise à jour des données du graphique
+                sensorChart.data.datasets[0].data = [occupiedPercentage, freePercentage];
+                sensorChart.update(); // Rafraîchit le graphique
+            },
+            error: function() {
+                console.error("Erreur lors de la récupération des données.");
+            }
+        });
+    }
+
+    $(document).ready(function() {
+        const ctx = document.getElementById('sensorChart').getContext('2d');
+
+        // Initialisation du graphique
+        sensorChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Occupied', 'Free'], // Catégories
+                datasets: [{
+                    label: 'Pourcentage des états',
+                    data: [0, 0], // Données initiales
+                    backgroundColor: ['rgba(255, 99, 132, 0.5)', 'rgba(75, 192, 192, 0.5)'],
+                    borderColor: ['rgba(255, 99, 132, 1)', 'rgba(75, 192, 192, 1)'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                    },
+                }
+            }
+        });
+
+        // Récupère les données initiales et met à jour le graphique toutes les 5 secondes
+        fetchDataAndUpdateChart();
+        setInterval(fetchDataAndUpdateChart, 5000); // Rafraîchit toutes les 5 secondes
+    });
+</script>
+{% endblock %}
